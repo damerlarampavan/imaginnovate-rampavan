@@ -1,17 +1,19 @@
 package com.imaginnovate.test.service;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.imaginnovate.test.models.EmployeeDTO;
 import com.imaginnovate.test.models.EmployeeTaxDTO;
 import com.imaginnovate.test.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Type;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -20,13 +22,21 @@ public class EmployeeService {
     @Autowired
     EmployeeRepository employeeRepository;
 
-    public EmployeeDTO createEmployee(EmployeeDTO employeeDTO){
+    @Autowired
+    Gson gson;
+
+    public Map<String, Object> createEmployee(EmployeeDTO employeeDTO){
         employeeDTO.setId(UUID.randomUUID());
-        return employeeRepository.save(employeeDTO);
+        employeeRepository.save(employeeDTO);
+        Type type = new TypeToken<Map<String, Object>>(){}.getType();
+        Map<String, Object> employeeMap = gson.fromJson(gson.toJson(employeeDTO), type);
+        return  employeeMap;
     }
 
     public EmployeeTaxDTO getTaxAmount(UUID id) {
         var employeeDetails = employeeRepository.getById(id);
+        if(employeeDetails == null)
+            return new EmployeeTaxDTO();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         // Parse the string to LocalDateTime
         var dateOfJoining = LocalDate.parse(employeeDetails.getDoj(), formatter);
