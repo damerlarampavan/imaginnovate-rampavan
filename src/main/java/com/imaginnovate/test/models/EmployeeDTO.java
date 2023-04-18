@@ -36,7 +36,7 @@ public class EmployeeDTO {
     private String phoneNumber;
 
     @Column(name = "doj")
-    private Date doj;
+    private String doj;
 
     @Column(name = "salary")
     private long salary;
